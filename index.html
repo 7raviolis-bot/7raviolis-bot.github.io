@@ -3,484 +3,1063 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>社区贷款计算器</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<title>在法购房贷款计算器 | Simulateur de Capacité d'Emprunt</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #f5f2eb;
-    --surface: #fffdf8;
-    --accent: #2d6a4f;
-    --accent-light: #d8f3dc;
-    --accent-dark: #1b4332;
-    --text: #1a1a1a;
-    --text-muted: #6b7280;
-    --border: #e5e0d5;
-    --shadow: 0 4px 24px rgba(0,0,0,0.08);
-    --radius: 16px;
-  }
+:root {
+  --navy: #0d1b2a;
+  --navy2: #1b2e42;
+  --gold: #c9a84c;
+  --gold-light: #f5e9cc;
+  --cream: #faf8f3;
+  --white: #ffffff;
+  --text: #1a1a2e;
+  --muted: #6b7280;
+  --border: #e8e2d5;
+  --green: #2d6a4f;
+  --green-light: #d8f3dc;
+  --red: #c0392b;
+  --red-light: #fdecea;
+  --orange: #d35400;
+  --orange-light: #fef3e2;
+  --radius: 14px;
+  --shadow: 0 2px 16px rgba(13,27,42,0.10);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Noto Sans SC', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+/* HEADER */
+.header {
+  background: var(--navy);
+  padding: 1.5rem 1.25rem 1.25rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  top: -50px; right: -30px;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: rgba(201,168,76,0.08);
+}
+.header-zh { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--gold); font-weight: 600; letter-spacing: 0.02em; }
+.header-fr { font-size: 0.72rem; color: rgba(255,255,255,0.5); margin-top: 3px; letter-spacing: 0.05em; text-transform: uppercase; }
+.header-sub { font-size: 0.78rem; color: rgba(255,255,255,0.65); margin-top: 8px; line-height: 1.6; }
 
-  body {
-    font-family: 'Noto Sans SC', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 0;
-  }
+/* STEPPER */
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem 1rem 0.75rem;
+  gap: 0;
+  overflow-x: auto;
+}
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+.step-dot {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--border);
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  border: 2px solid var(--border);
+}
+.step.active .step-dot { background: var(--navy); color: white; border-color: var(--navy); }
+.step.done .step-dot { background: var(--green); color: white; border-color: var(--green); }
+.step-label { font-size: 0.6rem; color: var(--muted); text-align: center; max-width: 52px; line-height: 1.3; }
+.step.active .step-label { color: var(--navy); font-weight: 500; }
+.step-line { width: 24px; height: 2px; background: var(--border); margin-bottom: 16px; flex-shrink: 0; }
+.step-line.done { background: var(--green); }
 
-  /* Header */
-  header {
-    background: var(--accent-dark);
-    color: white;
-    padding: 1.5rem 1.25rem 1.25rem;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-  header::before {
-    content: '';
-    position: absolute;
-    top: -40px; right: -40px;
-    width: 160px; height: 160px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.05);
-  }
-  header::after {
-    content: '';
-    position: absolute;
-    bottom: -30px; left: -20px;
-    width: 100px; height: 100px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.04);
-  }
-  header h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.6rem;
-    font-weight: 400;
-    letter-spacing: 0.01em;
-    position: relative;
-  }
-  header p {
-    font-size: 0.8rem;
-    opacity: 0.7;
-    margin-top: 4px;
-    position: relative;
-  }
+/* PAGES */
+.page { display: none; padding: 1rem 1.25rem 6rem; animation: fadeIn 0.25s ease; }
+.page.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* Open button */
-  .open-btn {
-    display: block;
-    margin: 1.5rem auto;
-    background: var(--accent);
-    color: white;
-    border: none;
-    padding: 0.85rem 2rem;
-    border-radius: 50px;
-    font-size: 1rem;
-    font-family: 'Noto Sans SC', sans-serif;
-    font-weight: 500;
-    cursor: pointer;
-    box-shadow: 0 4px 16px rgba(45,106,79,0.35);
-    transition: all 0.2s;
-    width: calc(100% - 2.5rem);
-    max-width: 360px;
-  }
-  .open-btn:active { transform: scale(0.97); }
+/* CARDS */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.1rem;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+.card-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 2px;
+}
+.card-subtitle {
+  font-size: 0.7rem;
+  color: var(--muted);
+  margin-bottom: 12px;
+  font-style: italic;
+}
 
-  /* Info cards */
-  .cards {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    padding: 0 1.25rem 1.5rem;
-  }
-  .info-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1rem;
-    text-align: center;
-  }
-  .info-card .icon { font-size: 1.5rem; margin-bottom: 6px; }
-  .info-card .title { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 2px; }
-  .info-card .desc { font-size: 0.85rem; font-weight: 500; }
+/* FIELDS */
+.field { margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+.label {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+.label-zh { font-size: 0.82rem; font-weight: 500; color: var(--text); }
+.label-fr { font-size: 0.68rem; color: var(--muted); }
+.hint { font-size: 0.68rem; color: var(--muted); margin-top: 4px; line-height: 1.5; padding: 5px 8px; background: #f8f6f0; border-radius: 6px; border-left: 2px solid var(--gold); }
 
-  /* Modal overlay */
-  .overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.55);
-    z-index: 100;
-    align-items: flex-end;
-    justify-content: center;
-  }
-  .overlay.open { display: flex; }
+input[type=text], input[type=number], select, textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  font-size: 0.88rem;
+  font-family: 'Noto Sans SC', sans-serif;
+  background: white;
+  color: var(--text);
+  transition: border 0.15s;
+  appearance: none;
+}
+input:focus, select:focus { outline: none; border-color: var(--navy); }
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
 
-  /* Modal sheet */
-  .sheet {
-    background: var(--surface);
-    border-radius: 24px 24px 0 0;
-    width: 100%;
-    max-width: 480px;
-    max-height: 92vh;
-    overflow-y: auto;
-    padding: 0 0 2rem;
-    animation: slideUp 0.3s ease;
-  }
-  @keyframes slideUp {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
-  }
+.input-euro {
+  position: relative;
+}
+.input-euro input { padding-left: 28px; }
+.input-euro::before { content: '€'; position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; color: var(--muted); pointer-events: none; }
 
-  .sheet-handle {
-    width: 40px; height: 4px;
-    background: var(--border);
-    border-radius: 2px;
-    margin: 12px auto 0;
-  }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-  .sheet-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem 1.25rem 0.75rem;
-    border-bottom: 1px solid var(--border);
-  }
-  .sheet-title { font-size: 1.05rem; font-weight: 700; }
-  .close-btn {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    border: 1px solid var(--border);
-    background: transparent;
-    cursor: pointer;
-    font-size: 1rem;
-    color: var(--text-muted);
-    display: flex; align-items: center; justify-content: center;
-  }
+/* TOGGLE */
+.toggle-group { display: flex; gap: 8px; }
+.toggle-btn {
+  flex: 1;
+  padding: 8px 6px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: white;
+  font-size: 0.78rem;
+  font-family: 'Noto Sans SC', sans-serif;
+  cursor: pointer;
+  text-align: center;
+  color: var(--muted);
+  transition: all 0.15s;
+  line-height: 1.3;
+}
+.toggle-btn.active { background: var(--navy); color: white; border-color: var(--navy); font-weight: 500; }
 
-  /* Tabs */
-  .tabs {
-    display: flex;
-    gap: 8px;
-    padding: 1rem 1.25rem 0;
-  }
-  .tab {
-    flex: 1;
-    padding: 8px 0;
-    font-size: 0.8rem;
-    font-family: 'Noto Sans SC', sans-serif;
-    border: 1px solid var(--border);
-    border-radius: 50px;
-    background: transparent;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .tab.active {
-    background: var(--accent);
-    color: white;
-    border-color: var(--accent);
-    font-weight: 500;
-  }
+/* ALERT */
+.alert {
+  padding: 10px 12px;
+  border-radius: 9px;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  margin-top: 8px;
+  display: none;
+}
+.alert.show { display: block; }
+.alert-warn { background: var(--orange-light); color: var(--orange); border-left: 3px solid var(--orange); }
+.alert-danger { background: var(--red-light); color: var(--red); border-left: 3px solid var(--red); }
+.alert-ok { background: var(--green-light); color: var(--green); border-left: 3px solid var(--green); }
 
-  /* Form */
-  .form { padding: 1rem 1.25rem 0; }
+/* BORROWER SECTION */
+.borrower-tab { display: flex; gap: 8px; margin-bottom: 12px; }
+.b-tab {
+  flex: 1; padding: 7px; border: 1px solid var(--border); border-radius: 9px;
+  font-size: 0.78rem; font-family: 'Noto Sans SC', sans-serif; cursor: pointer;
+  text-align: center; color: var(--muted); background: white; transition: all 0.15s;
+}
+.b-tab.active { background: var(--gold); color: var(--navy); border-color: var(--gold); font-weight: 700; }
 
-  .field { margin-bottom: 1rem; }
-  .field label {
-    display: block;
-    font-size: 0.78rem;
-    color: var(--text-muted);
-    margin-bottom: 6px;
-    font-weight: 500;
-  }
-  .field-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .field input[type=range] {
-    flex: 1;
-    accent-color: var(--accent);
-  }
-  .field-val {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: var(--accent-dark);
-    min-width: 80px;
-    text-align: right;
-  }
-  .field input[type=number] {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    font-size: 0.95rem;
-    font-family: 'Noto Sans SC', sans-serif;
-    background: white;
-    color: var(--text);
-  }
+.borrower-block { display: none; }
+.borrower-block.show { display: block; }
+.borrower-header {
+  font-size: 0.78rem; font-weight: 700; color: var(--gold);
+  background: var(--navy); padding: 5px 10px; border-radius: 7px;
+  margin-bottom: 10px; display: inline-block;
+}
 
-  /* Results */
-  .results { padding: 0 1.25rem; }
+/* NAV BUTTONS */
+.nav-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: white;
+  border-top: 1px solid var(--border);
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  gap: 10px;
+  z-index: 50;
+}
+.btn-back {
+  flex: 1;
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  background: white;
+  font-size: 0.88rem;
+  font-family: 'Noto Sans SC', sans-serif;
+  color: var(--muted);
+  cursor: pointer;
+}
+.btn-next {
+  flex: 2;
+  padding: 11px;
+  border: none;
+  border-radius: 50px;
+  background: var(--navy);
+  color: white;
+  font-size: 0.88rem;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn-next:active { opacity: 0.85; }
+.btn-calc {
+  flex: 2;
+  padding: 11px;
+  border: none;
+  border-radius: 50px;
+  background: var(--gold);
+  color: var(--navy);
+  font-size: 0.88rem;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+}
 
-  .result-highlight {
-    background: var(--accent-dark);
-    color: white;
-    border-radius: var(--radius);
-    padding: 1.25rem;
-    margin-bottom: 12px;
-    text-align: center;
-  }
-  .result-highlight .label { font-size: 0.78rem; opacity: 0.75; margin-bottom: 4px; }
-  .result-highlight .amount { font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; }
-  .result-highlight .sub { font-size: 0.78rem; opacity: 0.65; margin-top: 4px; }
+/* RESULTS */
+.result-hero {
+  background: var(--navy);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  text-align: center;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.result-hero::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: rgba(201,168,76,0.1);
+}
+.result-hero-label { font-size: 0.72rem; color: rgba(255,255,255,0.6); margin-bottom: 4px; }
+.result-hero-label span { color: rgba(255,255,255,0.4); font-style: italic; font-size: 0.65rem; }
+.result-hero-amount { font-size: 2.2rem; font-weight: 700; color: var(--gold); letter-spacing: -0.02em; }
+.result-hero-sub { font-size: 0.75rem; color: rgba(255,255,255,0.55); margin-top: 4px; }
 
-  .plans-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-  .plan {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 10px 8px;
-    text-align: center;
-  }
-  .plan.best {
-    border: 2px solid var(--accent);
-    background: var(--accent-light);
-  }
-  .plan-tag {
-    font-size: 0.65rem;
-    background: var(--accent);
-    color: white;
-    padding: 2px 8px;
-    border-radius: 50px;
-    display: inline-block;
-    margin-bottom: 4px;
-  }
-  .plan-yr { font-size: 1.1rem; font-weight: 700; color: var(--accent-dark); }
-  .plan-yr span { font-size: 0.7rem; font-weight: 400; color: var(--text-muted); }
-  .plan-amt { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
-  .plan-mo { font-size: 0.7rem; color: var(--text-muted); margin-top: 3px; }
+.result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.result-metric {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 11px 12px;
+}
+.result-metric-label { font-size: 0.68rem; color: var(--muted); margin-bottom: 3px; line-height: 1.3; }
+.result-metric-label span { display: block; font-style: italic; font-size: 0.62rem; }
+.result-metric-val { font-size: 1.05rem; font-weight: 700; color: var(--navy); }
+.result-metric-val.ok { color: var(--green); }
+.result-metric-val.warn { color: var(--orange); }
+.result-metric-val.bad { color: var(--red); }
 
-  .metrics {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-  .metric {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 10px 12px;
-  }
-  .metric-label { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 3px; }
-  .metric-val { font-size: 1rem; font-weight: 700; color: var(--text); }
+.dti-bar { height: 6px; background: var(--border); border-radius: 3px; margin-top: 6px; overflow: hidden; }
+.dti-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
 
-  .disclaimer {
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    background: #f9f6f0;
-    border-radius: 10px;
-    padding: 10px 12px;
-    line-height: 1.6;
-  }
+/* MATERIALS */
+.checklist-section { margin-bottom: 14px; }
+.checklist-title {
+  font-size: 0.78rem; font-weight: 700; color: var(--navy2);
+  border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.checklist-title .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+.check-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid #f5f2eb;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+.check-item:last-child { border-bottom: none; }
+.check-icon { width: 18px; height: 18px; border-radius: 50%; background: var(--green-light); color: var(--green); font-size: 0.65rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; font-weight: 700; }
+.check-zh { color: var(--text); font-weight: 500; }
+.check-fr { color: var(--muted); font-style: italic; font-size: 0.68rem; }
 
-  /* Footer */
-  footer {
-    text-align: center;
-    padding: 2rem 1.25rem;
-    font-size: 0.75rem;
-    color: var(--text-muted);
-  }
+.warning-box {
+  background: var(--orange-light);
+  border: 1px solid #f0c080;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.75rem;
+  line-height: 1.7;
+  color: var(--orange);
+  margin-bottom: 12px;
+}
+.success-box {
+  background: var(--green-light);
+  border: 1px solid #a8dbb5;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.75rem;
+  line-height: 1.7;
+  color: var(--green);
+  margin-bottom: 12px;
+}
+.page-title {
+  font-size: 1rem; font-weight: 700; color: var(--navy);
+  margin-bottom: 2px;
+}
+.page-title-fr { font-size: 0.7rem; color: var(--muted); font-style: italic; margin-bottom: 14px; }
+
+.disclaimer {
+  font-size: 0.68rem;
+  color: var(--muted);
+  background: #f5f2eb;
+  border-radius: 9px;
+  padding: 10px 12px;
+  line-height: 1.7;
+  margin-top: 4px;
+}
+
+.sci-notice {
+  background: var(--navy);
+  color: white;
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  text-align: center;
+  margin-bottom: 12px;
+}
+.sci-notice h3 { color: var(--gold); font-size: 1rem; margin-bottom: 8px; }
+.sci-notice p { font-size: 0.78rem; color: rgba(255,255,255,0.75); line-height: 1.7; }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>社区贷款计算器</h1>
-  <p>快速估算银行贷款最高额度</p>
-</header>
-
-<div style="padding: 1.5rem 1.25rem 0.5rem; text-align:center;">
-  <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.7;">
-    输入你的收入和贷款条件，<br>立即查看可贷金额与还款方案。
-  </p>
+<div class="header">
+  <div class="header-zh">在法购房贷款计算器</div>
+  <div class="header-fr">Simulateur de Capacité d'Emprunt Immobilier</div>
+  <div class="header-sub">专为在法华人设计 · Conçu pour la communauté chinoise en France</div>
 </div>
 
-<div style="text-align:center;">
-  <button class="open-btn" onclick="openModal()">开始计算 →</button>
+<!-- STEPPER -->
+<div class="stepper" id="stepper">
+  <div class="step active" onclick="goTo(0)" id="s0"><div class="step-dot">1</div><div class="step-label">借款人 Emprunteur</div></div>
+  <div class="step-line" id="l01"></div>
+  <div class="step active" onclick="goTo(1)" id="s1"><div class="step-dot">2</div><div class="step-label">职业收入 Revenus</div></div>
+  <div class="step-line" id="l12"></div>
+  <div class="step" onclick="goTo(2)" id="s2"><div class="step-dot">3</div><div class="step-label">财务储蓄 Épargne</div></div>
+  <div class="step-line" id="l23"></div>
+  <div class="step" onclick="goTo(3)" id="s3"><div class="step-dot">4</div><div class="step-label">购买标的 Bien</div></div>
+  <div class="step-line" id="l34"></div>
+  <div class="step" onclick="goTo(4)" id="s4"><div class="step-dot">5</div><div class="step-label">结果 Résultat</div></div>
 </div>
 
-<div class="cards">
-  <div class="info-card">
-    <div class="icon">🏠</div>
-    <div class="title">支持类型</div>
-    <div class="desc">房贷 / 车贷 / 消费贷</div>
+<!-- PAGE 1: BORROWER -->
+<div class="page active" id="page0">
+  <div class="page-title">借款人信息</div>
+  <div class="page-title-fr">Informations sur l'emprunteur</div>
+
+  <div class="card">
+    <div class="card-title">借款人数量 · Nombre d'emprunteurs</div>
+    <div class="card-subtitle">3人以上请使用SCI公司贷款渠道</div>
+    <div class="toggle-group">
+      <div class="toggle-btn active" onclick="setBorrowers(1,this)">单人申请<br><span style="font-size:0.65rem;opacity:0.7">Seul(e)</span></div>
+      <div class="toggle-btn" onclick="setBorrowers(2,this)">双人联名<br><span style="font-size:0.65rem;opacity:0.7">Co-emprunteurs</span></div>
+      <div class="toggle-btn" onclick="setBorrowers(3,this)">3人以上<br><span style="font-size:0.65rem;opacity:0.7">3+ personnes</span></div>
+    </div>
+    <div class="alert alert-warn" id="sci-alert">
+      ⚠️ 3人以上联名购房通常需要通过 <strong>SCI（民事不动产公司）</strong> 申请贷款，流程不同。本工具暂不支持此情况，建议咨询专业贷款中介。
+    </div>
   </div>
-  <div class="info-card">
-    <div class="icon">📊</div>
-    <div class="title">方案对比</div>
-    <div class="desc">3种年限同时对比</div>
-  </div>
-  <div class="info-card">
-    <div class="icon">🔒</div>
-    <div class="title">隐私安全</div>
-    <div class="desc">无需注册，不存储数据</div>
-  </div>
-  <div class="info-card">
-    <div class="icon">📱</div>
-    <div class="title">随时可用</div>
-    <div class="desc">手机电脑均可使用</div>
+
+  <div id="borrowers-section">
+    <!-- BORROWER 1 -->
+    <div class="card" id="b1-card">
+      <div class="borrower-header">借款人一 · Emprunteur 1</div>
+      <div class="field">
+        <div class="label"><span class="label-zh">居留身份</span><span class="label-fr">Titre de séjour</span></div>
+        <select id="b1-titre" onchange="checkTitre(1)">
+          <option value="">请选择...</option>
+          <option value="citoyen">法国国籍 · Citoyen français</option>
+          <option value="rp10">10年居留卡 · Carte de résident (10 ans)</option>
+          <option value="rp3">3年居留卡 · Titre pluriannuel (3 ans)</option>
+          <option value="rp1">1年居留卡 · Titre annuel (1 an)</option>
+          <option value="etudiant">学生证 · Carte étudiant</option>
+          <option value="autre">其他 · Autre</option>
+        </select>
+        <div class="alert alert-warn" id="b1-titre-alert"></div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <div class="label"><span class="label-zh">到法年份</span><span class="label-fr">Arrivée en France</span></div>
+          <select id="b1-arrivee">
+            <option value="">年份...</option>
+          </select>
+        </div>
+        <div class="field">
+          <div class="label"><span class="label-zh">居留到期</span><span class="label-fr">Expiration titre</span></div>
+          <select id="b1-expiry">
+            <option value="">年份...</option>
+          </select>
+        </div>
+      </div>
+      <div class="alert alert-warn" id="b1-expiry-alert"></div>
+    </div>
+
+    <!-- BORROWER 2 -->
+    <div class="card" id="b2-card" style="display:none;">
+      <div class="borrower-header">借款人二 · Emprunteur 2</div>
+      <div class="field">
+        <div class="label"><span class="label-zh">居留身份</span><span class="label-fr">Titre de séjour</span></div>
+        <select id="b2-titre" onchange="checkTitre(2)">
+          <option value="">请选择...</option>
+          <option value="citoyen">法国国籍 · Citoyen français</option>
+          <option value="rp10">10年居留卡 · Carte de résident (10 ans)</option>
+          <option value="rp3">3年居留卡 · Titre pluriannuel (3 ans)</option>
+          <option value="rp1">1年居留卡 · Titre annuel (1 an)</option>
+          <option value="etudiant">学生证 · Carte étudiant</option>
+          <option value="autre">其他 · Autre</option>
+        </select>
+        <div class="alert alert-warn" id="b2-titre-alert"></div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <div class="label"><span class="label-zh">到法年份</span><span class="label-fr">Arrivée en France</span></div>
+          <select id="b2-arrivee"><option value="">年份...</option></select>
+        </div>
+        <div class="field">
+          <div class="label"><span class="label-zh">居留到期</span><span class="label-fr">Expiration titre</span></div>
+          <select id="b2-expiry"><option value="">年份...</option></select>
+        </div>
+      </div>
+      <div class="alert alert-warn" id="b2-expiry-alert"></div>
+    </div>
+
+    <!-- HOUSING -->
+    <div class="card">
+      <div class="card-title">目前住址情况 · Situation de logement actuelle</div>
+      <div class="field">
+        <div class="label"><span class="label-zh">居住情况</span><span class="label-fr">Statut</span></div>
+        <select id="housing-status" onchange="checkHousing()">
+          <option value="">请选择...</option>
+          <option value="locataire">租房 · Locataire</option>
+          <option value="proprio">自有住房 · Propriétaire</option>
+          <option value="gratuit">免费居住（家人提供）· Logé à titre gratuit</option>
+          <option value="employeur">雇主提供住房 · Logement de fonction</option>
+        </select>
+      </div>
+      <div id="rent-field" style="display:none;" class="field">
+        <div class="label"><span class="label-zh">每月租金</span><span class="label-fr">Loyer mensuel</span></div>
+        <div class="input-euro"><input type="number" id="loyer" placeholder="0" min="0"></div>
+        <div class="hint">💡 买房后这笔租金可省下，银行会纳入还款能力计算 · Le loyer économisé améliore votre capacité d'emprunt</div>
+      </div>
+    </div>
   </div>
 </div>
 
-<footer>仅供参考，实际额度以银行审批为准</footer>
+<!-- PAGE 2: INCOME -->
+<div class="page" id="page1">
+  <div class="page-title">职业与收入情况</div>
+  <div class="page-title-fr">Situation professionnelle et revenus</div>
 
-<!-- Modal -->
-<div class="overlay" id="overlay" onclick="handleOverlayClick(event)">
-  <div class="sheet" id="sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-header">
-      <span class="sheet-title">贷款额度计算</span>
-      <button class="close-btn" onclick="closeModal()">✕</button>
+  <div id="income-section"></div>
+</div>
+
+<!-- PAGE 3: SAVINGS -->
+<div class="page" id="page2">
+  <div class="page-title">财务与储蓄情况</div>
+  <div class="page-title-fr">Patrimoine et épargne</div>
+
+  <div class="card">
+    <div class="card-title">首付资金 · Apport personnel</div>
+    <div class="field">
+      <div class="label"><span class="label-zh">首付总金额</span><span class="label-fr">Montant total de l'apport</span></div>
+      <div class="input-euro"><input type="number" id="apport-total" placeholder="0" min="0"></div>
     </div>
-
-    <div class="tabs">
-      <button class="tab active" onclick="setType('mortgage',this)">房贷</button>
-      <button class="tab" onclick="setType('consumer',this)">消费贷</button>
-      <button class="tab" onclick="setType('car',this)">车贷</button>
-    </div>
-
-    <div class="form">
-      <div class="field">
-        <label>月收入（元）</label>
-        <div class="field-row">
-          <input type="range" id="income" min="3000" max="100000" step="500" value="15000" oninput="update()">
-          <span class="field-val" id="income-val">15,000 元</span>
-        </div>
-      </div>
-      <div class="field">
-        <label>年利率（%）</label>
-        <div class="field-row">
-          <input type="range" id="rate" min="1" max="15" step="0.1" value="4.5" oninput="update()">
-          <span class="field-val" id="rate-val">4.5%</span>
-        </div>
-      </div>
-      <div class="field">
-        <label>现有月还款合计（元）— 已有房贷、车贷等</label>
-        <input type="number" id="debt" min="0" value="0" step="100" oninput="update()" placeholder="0">
-      </div>
-    </div>
-
-    <div class="results">
-      <div class="result-highlight">
-        <div class="label">推荐最高贷款额度</div>
-        <div class="amount" id="best-amount">—</div>
-        <div class="sub" id="best-sub">—</div>
-      </div>
-
-      <div class="plans-grid" id="plans"></div>
-
-      <div class="metrics">
-        <div class="metric">
-          <div class="metric-label">可用月还款</div>
-          <div class="metric-val" id="avail">—</div>
-        </div>
-        <div class="metric">
-          <div class="metric-label">收入负债比</div>
-          <div class="metric-val" id="dti">—</div>
-        </div>
-      </div>
-
-      <div class="disclaimer">
-        ⚠️ 本计算器仅供参考，以月收入50%作为最高还款能力估算。实际贷款额度由银行综合评估，建议咨询多家银行。
-      </div>
+    <div class="field">
+      <div class="label"><span class="label-zh">已在法国账户的金额</span><span class="label-fr">Montant déjà en France</span></div>
+      <div class="input-euro"><input type="number" id="apport-france" placeholder="0" min="0" oninput="checkApport()"></div>
+      <div class="alert alert-warn" id="apport-alert"></div>
+      <div class="hint">⚠️ 银行要求首付资金必须在法国账户。海外资金需提前转入并准备来源证明（justificatif d'origine des fonds）</div>
     </div>
   </div>
+
+  <div class="card">
+    <div class="card-title">其他资产（加分项）· Autres actifs</div>
+    <div class="card-subtitle">以下资产虽不直接计入额度，但可增强银行信心</div>
+    <div class="field">
+      <div class="label"><span class="label-zh">法国境内其他储蓄</span><span class="label-fr">Épargne en France (hors apport)</span></div>
+      <div class="input-euro"><input type="number" id="epargne-fr" placeholder="0" min="0"></div>
+    </div>
+    <div class="field">
+      <div class="label"><span class="label-zh">中国或其他国家资产</span><span class="label-fr">Actifs hors de France</span></div>
+      <div class="input-euro"><input type="number" id="actifs-chine" placeholder="0" min="0"></div>
+      <div class="hint">📋 包括中国房产、存款、股票等。需附资产证明文件翻译件 · Incluant biens immobiliers, comptes bancaires en Chine</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">现有贷款负债 · Crédits en cours</div>
+    <div class="field">
+      <div class="label"><span class="label-zh">现有月还款合计</span><span class="label-fr">Total mensualités actuelles</span></div>
+      <div class="input-euro"><input type="number" id="charges" placeholder="0" min="0"></div>
+      <div class="hint">包括所有现有房贷、车贷、消费贷的月还款总和 · Inclure tous les crédits immobiliers, auto, conso</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 4: PROPERTY -->
+<div class="page" id="page3">
+  <div class="page-title">购买标的信息</div>
+  <div class="page-title-fr">Informations sur le bien immobilier</div>
+
+  <div class="card">
+    <div class="card-title">房产类型 · Type de bien</div>
+    <div class="toggle-group">
+      <div class="toggle-btn active" onclick="setPropertyType('ancien',this)">旧房<br><span style="font-size:0.65rem;opacity:0.7">Bien ancien</span></div>
+      <div class="toggle-btn" onclick="setPropertyType('neuf',this)">新房<br><span style="font-size:0.65rem;opacity:0.7">Bien neuf</span></div>
+      <div class="toggle-btn" onclick="setPropertyType('travaux',this)">需装修<br><span style="font-size:0.65rem;opacity:0.7">Avec travaux</span></div>
+    </div>
+    <div class="hint" style="margin-top:10px;" id="frais-hint">🏛️ 旧房公证费约为房价的 <strong>7%~8%</strong>（frais de notaire）· Frais de notaire ~7-8% pour l'ancien</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">地理位置 · Localisation</div>
+    <div class="field">
+      <div class="label"><span class="label-zh">城市/地区</span><span class="label-fr">Ville / Région</span></div>
+      <select id="ville">
+        <option value="paris">巴黎市内 · Paris (75)</option>
+        <option value="idf">巴黎大区（除巴黎市）· Île-de-France (hors Paris)</option>
+        <option value="lyon">里昂 · Lyon</option>
+        <option value="marseille">马赛 · Marseille</option>
+        <option value="bordeaux">波尔多 · Bordeaux</option>
+        <option value="nice">尼斯 · Nice</option>
+        <option value="grande_ville">其他大城市 · Autre grande ville</option>
+        <option value="province">外省 · Province</option>
+      </select>
+    </div>
+    <div class="field">
+      <div class="label"><span class="label-zh">目标房价（预算）</span><span class="label-fr">Prix du bien envisagé</span></div>
+      <div class="input-euro"><input type="number" id="prix-bien" placeholder="250000" min="0" oninput="updateFrais()"></div>
+    </div>
+    <div id="frais-detail" style="display:none; margin-top:8px;" class="hint"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">贷款条件 · Conditions du prêt</div>
+    <div class="field">
+      <div class="label"><span class="label-zh">贷款年限</span><span class="label-fr">Durée du prêt</span></div>
+      <select id="duree">
+        <option value="10">10年 · 10 ans</option>
+        <option value="15">15年 · 15 ans</option>
+        <option value="20">20年 · 20 ans</option>
+        <option value="25" selected>25年（最长）· 25 ans (maximum)</option>
+      </select>
+      <div class="hint">📋 法国银行最长贷款年限为25年（HCSF规定）· Durée maximale 25 ans selon les règles HCSF</div>
+    </div>
+    <div class="field">
+      <div class="label"><span class="label-zh">年利率（参考）</span><span class="label-fr">Taux d'intérêt annuel</span></div>
+      <input type="number" id="taux" value="3.5" step="0.05" min="0.5" max="10">
+      <div class="hint">📊 2025年法国房贷参考利率约3.0%~4.0%，请咨询银行最新报价 · Taux indicatif, vérifier auprès des banques</div>
+    </div>
+    <div class="field">
+      <div class="label"><span class="label-zh">借款人保险费率（年）</span><span class="label-fr">Taux d'assurance emprunteur</span></div>
+      <input type="number" id="assurance" value="0.35" step="0.01" min="0" max="2">
+      <div class="hint">💡 通常为0.10%~0.50%/年，随年龄和健康状况而异 · Entre 0,10% et 0,50% selon profil</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 5: RESULTS -->
+<div class="page" id="page4">
+  <div class="page-title">计算结果</div>
+  <div class="page-title-fr">Résultats de la simulation</div>
+  <div id="results-content"></div>
+</div>
+
+<!-- NAV BAR -->
+<div class="nav-bar" id="nav-bar">
+  <button class="btn-back" id="btn-back" onclick="prevPage()" style="display:none;">← 返回</button>
+  <button class="btn-next" id="btn-next" onclick="nextPage()">下一步 →</button>
 </div>
 
 <script>
-  let loanType = 'mortgage';
-  const cfg = {
-    mortgage: { years:[10,20,30], rate:4.5, labels:['短期','推荐','长期'], best:1 },
-    consumer: { years:[1,3,5],   rate:8.0, labels:['短期','推荐','长期'], best:1 },
-    car:      { years:[3,5,7],   rate:6.0, labels:['短期','推荐','长期'], best:1 }
+let currentPage = 0;
+let numBorrowers = 1;
+let propertyType = 'ancien';
+const totalPages = 5;
+const currentYear = new Date().getFullYear();
+
+// Init year selects
+function initYears() {
+  ['b1-arrivee','b2-arrivee'].forEach(id => {
+    const sel = document.getElementById(id);
+    for (let y = 1980; y <= currentYear; y++) {
+      sel.innerHTML += `<option value="${y}">${y}</option>`;
+    }
+  });
+  ['b1-expiry','b2-expiry'].forEach(id => {
+    const sel = document.getElementById(id);
+    for (let y = currentYear; y <= currentYear + 15; y++) {
+      sel.innerHTML += `<option value="${y}">${y}</option>`;
+    }
+  });
+}
+initYears();
+
+function setBorrowers(n, el) {
+  numBorrowers = n;
+  document.querySelectorAll('.toggle-group .toggle-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('b2-card').style.display = n === 2 ? 'block' : 'none';
+  document.getElementById('sci-alert').classList.toggle('show', n === 3);
+  document.getElementById('borrowers-section').style.display = n === 3 ? 'none' : 'block';
+  buildIncomeSection();
+}
+
+function checkTitre(n) {
+  const val = document.getElementById(`b${n}-titre`).value;
+  const alert = document.getElementById(`b${n}-titre-alert`);
+  const msgs = {
+    rp1: '⚠️ 1年居留卡：大多数银行会拒贷或要求额外担保，建议等居留卡续签后再申请 · Titre annuel : refus fréquent, démarche difficile',
+    etudiant: '❌ 学生证通常无法申请房贷，需要工作居留身份 · Carte étudiant insuffisante pour un crédit immobilier',
+    autre: '⚠️ 请咨询专业中介确认您的居留身份是否符合银行贷款要求'
   };
+  if (msgs[val]) { alert.textContent = msgs[val]; alert.className = 'alert alert-warn show'; }
+  else if (val === 'rp3') { alert.textContent = '✅ 3年居留卡：部分银行接受，建议同时申请多家 · Titre pluriannuel : accepté par certaines banques'; alert.className = 'alert alert-ok show'; }
+  else { alert.className = 'alert'; }
+}
 
-  function openModal() {
-    document.getElementById('overlay').classList.add('open');
-    update();
+function checkHousing() {
+  const v = document.getElementById('housing-status').value;
+  document.getElementById('rent-field').style.display = v === 'locataire' ? 'block' : 'none';
+}
+
+function setPropertyType(t, el) {
+  propertyType = t;
+  document.querySelectorAll('#page3 .toggle-group .toggle-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  const hints = {
+    ancien: '🏛️ 旧房公证费约为房价的 <strong>7%~8%</strong>（frais de notaire）· Frais de notaire ~7-8% pour l\'ancien',
+    neuf: '🏗️ 新房公证费约为房价的 <strong>2%~3%</strong>（frais réduits）· Frais de notaire ~2-3% pour le neuf',
+    travaux: '🔨 旧房+装修：公证费约 <strong>7%~8%</strong>，装修费可纳入贷款 · Travaux finançables avec le prêt'
+  };
+  document.getElementById('frais-hint').innerHTML = hints[t];
+  updateFrais();
+}
+
+function updateFrais() {
+  const prix = parseFloat(document.getElementById('prix-bien').value) || 0;
+  if (!prix) { document.getElementById('frais-detail').style.display = 'none'; return; }
+  const rate = propertyType === 'neuf' ? 0.025 : 0.075;
+  const frais = prix * rate;
+  const total = prix + frais;
+  document.getElementById('frais-detail').innerHTML =
+    `房价：<strong>€${fmt(prix)}</strong> + 公证费：<strong>€${fmt(frais)}</strong> = 总预算：<strong>€${fmt(total)}</strong>`;
+  document.getElementById('frais-detail').style.display = 'block';
+}
+
+function checkApport() {
+  const total = parseFloat(document.getElementById('apport-total').value) || 0;
+  const france = parseFloat(document.getElementById('apport-france').value) || 0;
+  const alert = document.getElementById('apport-alert');
+  if (france < total) {
+    const diff = total - france;
+    alert.textContent = `⚠️ 还有 €${fmt(diff)} 在海外，需尽早转入法国账户并准备资金来源证明（justificatif d'origine des fonds）`;
+    alert.className = 'alert alert-warn show';
+  } else { alert.className = 'alert'; }
+}
+
+// Income section builder
+function buildIncomeSection() {
+  let html = '';
+  for (let i = 1; i <= Math.min(numBorrowers, 2); i++) {
+    html += `
+    <div class="card">
+      <div class="borrower-header">借款人${i === 1 ? '一' : '二'} · Emprunteur ${i}</div>
+      <div class="field">
+        <div class="label"><span class="label-zh">职业类型</span><span class="label-fr">Statut professionnel</span></div>
+        <select id="b${i}-metier" onchange="checkMetier(${i})">
+          <option value="">请选择...</option>
+          <option value="cdi">工薪族 CDI（无固定期限合同）</option>
+          <option value="cdd">工薪族 CDD（有固定期限合同）</option>
+          <option value="ae">自由职业 Auto-entrepreneur</option>
+          <option value="gerant">公司老板 Gérant / TNS</option>
+          <option value="fonctionnaire">公务员 Fonctionnaire</option>
+          <option value="retraite">退休 Retraité</option>
+        </select>
+        <div class="alert" id="b${i}-metier-alert"></div>
+      </div>
+      <div id="b${i}-income-detail"></div>
+    </div>`;
   }
-  function closeModal() {
-    document.getElementById('overlay').classList.remove('open');
+  document.getElementById('income-section').innerHTML = html;
+}
+buildIncomeSection();
+
+function checkMetier(n) {
+  const v = document.getElementById(`b${n}-metier`).value;
+  const alert = document.getElementById(`b${n}-metier-alert`);
+  const detail = document.getElementById(`b${n}-income-detail`);
+  const msgs = {
+    cdd: { cls: 'alert-danger', msg: '❌ CDD合同：绝大多数银行拒贷。建议等转为CDI后再申请 · CDD : refus quasi-systématique des banques' },
+  };
+  if (msgs[v]) { alert.textContent = msgs[v].msg; alert.className = `alert ${msgs[v].cls} show`; }
+  else { alert.className = 'alert'; }
+
+  let fields = '';
+  if (v === 'cdi' || v === 'fonctionnaire') {
+    fields = `
+      <div class="field">
+        <div class="label"><span class="label-zh">开始工作日期</span><span class="label-fr">Date de début d'emploi</span></div>
+        <div class="row2">
+          <select id="b${n}-job-month">
+            ${[...Array(12)].map((_, i) => `<option value="${i+1}">${i+1}月</option>`).join('')}
+          </select>
+          <select id="b${n}-job-year">
+            ${[...Array(10)].map((_, i) => `<option value="${currentYear-i}">${currentYear-i}</option>`).join('')}
+          </select>
+        </div>
+        <div class="alert alert-warn" id="b${n}-essai-alert"></div>
+      </div>
+      <div class="field">
+        <div class="label"><span class="label-zh">税后月净收入</span><span class="label-fr">Salaire net mensuel</span></div>
+        <div class="input-euro"><input type="number" id="b${n}-salaire" placeholder="2500" min="0" oninput="checkEssai(${n})"></div>
+      </div>
+      <div class="field">
+        <div class="label"><span class="label-zh">年终奖/月均值（3年平均）</span><span class="label-fr">Prime annuelle / 12 (moyenne 3 ans)</span></div>
+        <div class="input-euro"><input type="number" id="b${n}-prime" placeholder="0" min="0"></div>
+        <div class="hint">💡 奖金需有3年记录才可计入，取平均值 · Primes prises en compte si justifiées sur 3 ans</div>
+      </div>`;
+  } else if (v === 'ae') {
+    fields = `
+      <div class="field">
+        <div class="label"><span class="label-zh">自雇开始年份</span><span class="label-fr">Début d'activité</span></div>
+        <select id="b${n}-ae-year" onchange="checkAE(${n})">
+          ${[...Array(8)].map((_, i) => `<option value="${currentYear-i}">${currentYear-i}</option>`).join('')}
+        </select>
+        <div class="alert" id="b${n}-ae-alert"></div>
+      </div>
+      <div class="field">
+        <div class="label"><span class="label-zh">近3年平均税后年收入</span><span class="label-fr">Revenu annuel net moyen (3 ans)</span></div>
+        <div class="input-euro"><input type="number" id="b${n}-ae-revenu" placeholder="30000" min="0"></div>
+        <div class="hint">📋 需提供近3年报税单（avis d'imposition）。不足3年者大多数银行拒贷</div>
+      </div>`;
+  } else if (v === 'gerant') {
+    fields = `
+      <div class="field">
+        <div class="label"><span class="label-zh">公司成立年份</span><span class="label-fr">Création de société</span></div>
+        <select id="b${n}-gerant-year" onchange="checkGerant(${n})">
+          ${[...Array(10)].map((_, i) => `<option value="${currentYear-i}">${currentYear-i}</option>`).join('')}
+        </select>
+        <div class="alert" id="b${n}-gerant-alert"></div>
+      </div>
+      <div class="field">
+        <div class="label"><span class="label-zh">个人月薪（税后）</span><span class="label-fr">Rémunération mensuelle nette</span></div>
+        <div class="input-euro"><input type="number" id="b${n}-gerant-sal" placeholder="3000" min="0"></div>
+      </div>
+      <div class="field">
+        <div class="label"><span class="label-zh">年均分红（近3年平均÷12）</span><span class="label-fr">Dividendes moyens / mois (3 ans)</span></div>
+        <div class="input-euro"><input type="number" id="b${n}-gerant-div" placeholder="0" min="0"></div>
+        <div class="hint">💡 分红需3年记录，银行通常只计入部分 · Dividendes partiellement pris en compte</div>
+      </div>`;
+  } else if (v === 'retraite') {
+    fields = `
+      <div class="field">
+        <div class="label"><span class="label-zh">每月退休金（税后）</span><span class="label-fr">Pension de retraite nette</span></div>
+        <div class="input-euro"><input type="number" id="b${n}-retraite" placeholder="1500" min="0"></div>
+      </div>`;
   }
-  function handleOverlayClick(e) {
-    if (e.target === document.getElementById('overlay')) closeModal();
+  fields += `
+    <div class="field">
+      <div class="label"><span class="label-zh">法国租金收入（月）</span><span class="label-fr">Revenus fonciers mensuels</span></div>
+      <div class="input-euro"><input type="number" id="b${n}-foncier" placeholder="0" min="0"></div>
+      <div class="hint">💡 租金收入银行通常只计入70% · Revenus fonciers retenus à 70%</div>
+    </div>
+    <div class="field">
+      <div class="label"><span class="label-zh">家庭补贴 CAF（月）</span><span class="label-fr">Allocations CAF mensuelles</span></div>
+      <div class="input-euro"><input type="number" id="b${n}-caf" placeholder="0" min="0"></div>
+      <div class="hint">💡 部分银行接受 APL 等补贴计入收入 · Certaines banques acceptent les allocations CAF</div>
+    </div>`;
+  detail.innerHTML = fields;
+}
+
+function checkEssai(n) {
+  const month = parseInt(document.getElementById(`b${n}-job-month`)?.value) || new Date().getMonth()+1;
+  const year = parseInt(document.getElementById(`b${n}-job-year`)?.value) || currentYear;
+  const months = (currentYear - year) * 12 + (new Date().getMonth()+1 - month);
+  const alert = document.getElementById(`b${n}-essai-alert`);
+  if (!alert) return;
+  if (months < 2) { alert.textContent = '❌ 可能仍在试用期（période d\'essai）— 银行拒贷。建议试用期结束后再申请'; alert.className = 'alert alert-danger show'; }
+  else if (months < 6) { alert.textContent = '⚠️ 转正不足6个月，部分银行谨慎，建议同时咨询多家'; alert.className = 'alert alert-warn show'; }
+  else { alert.className = 'alert'; }
+}
+
+function checkAE(n) {
+  const year = parseInt(document.getElementById(`b${n}-ae-year`).value);
+  const years = currentYear - year;
+  const alert = document.getElementById(`b${n}-ae-alert`);
+  if (years < 1) { alert.textContent = '❌ 自雇不足1年：银行拒贷 · Moins d\'1 an d\'activité : refus'; alert.className = 'alert alert-danger show'; }
+  else if (years < 2) { alert.textContent = '⚠️ 仅1年报税记录：绝大多数银行拒贷，极少数接受 · 1 seul bilan : très difficile'; alert.className = 'alert alert-warn show'; }
+  else if (years < 3) { alert.textContent = '⚠️ 2年报税记录：部分银行接受，条件较严 · 2 bilans : accepté par certaines banques'; alert.className = 'alert alert-warn show'; }
+  else { alert.textContent = '✅ 3年及以上报税记录：正常申请 · 3 bilans ou plus : dossier recevable'; alert.className = 'alert alert-ok show'; }
+}
+
+function checkGerant(n) {
+  const year = parseInt(document.getElementById(`b${n}-gerant-year`).value);
+  const years = currentYear - year;
+  const alert = document.getElementById(`b${n}-gerant-alert`);
+  if (years < 2) { alert.textContent = '⚠️ 公司成立不足2年，银行审核会较严格 · Société de moins de 2 ans : dossier difficile'; alert.className = 'alert alert-warn show'; }
+  else { alert.className = 'alert'; }
+}
+
+// Get total income
+function getIncome(n) {
+  const metier = document.getElementById(`b${n}-metier`)?.value;
+  let base = 0;
+  if (metier === 'cdi' || metier === 'fonctionnaire') {
+    base = parseFloat(document.getElementById(`b${n}-salaire`)?.value) || 0;
+    const prime = (parseFloat(document.getElementById(`b${n}-prime`)?.value) || 0);
+    base += prime;
+  } else if (metier === 'ae') {
+    const annual = parseFloat(document.getElementById(`b${n}-ae-revenu`)?.value) || 0;
+    base = annual / 12;
+  } else if (metier === 'gerant') {
+    base = (parseFloat(document.getElementById(`b${n}-gerant-sal`)?.value) || 0) +
+           (parseFloat(document.getElementById(`b${n}-gerant-div`)?.value) || 0);
+  } else if (metier === 'retraite') {
+    base = parseFloat(document.getElementById(`b${n}-retraite`)?.value) || 0;
+  }
+  const foncier = (parseFloat(document.getElementById(`b${n}-foncier`)?.value) || 0) * 0.7;
+  const caf = parseFloat(document.getElementById(`b${n}-caf`)?.value) || 0;
+  return base + foncier + caf;
+}
+
+function calcMaxLoan(pmt, annRate, totalRate, years) {
+  const r = (annRate + totalRate) / 100 / 12;
+  const n = years * 12;
+  if (r === 0) return pmt * n;
+  return pmt * (1 - Math.pow(1+r,-n)) / r;
+}
+
+function calcMonthly(principal, annRate, totalRate, years) {
+  const r = (annRate + totalRate) / 100 / 12;
+  const n = years * 12;
+  if (r === 0) return principal / n;
+  return principal * r / (1 - Math.pow(1+r,-n));
+}
+
+function fmt(n) { return Math.round(n).toLocaleString('fr-FR'); }
+function fmtM(n) { if (n >= 1000000) return (n/1000000).toFixed(2) + 'M'; if (n >= 1000) return (n/1000).toFixed(0) + 'k'; return fmt(n); }
+
+function computeResults() {
+  let totalIncome = 0;
+  for (let i = 1; i <= Math.min(numBorrowers, 2); i++) totalIncome += getIncome(i);
+  const loyer = parseFloat(document.getElementById('loyer')?.value) || 0;
+  const housing = document.getElementById('housing-status').value;
+  const loyerBonus = housing === 'locataire' ? loyer : 0;
+  const charges = parseFloat(document.getElementById('charges').value) || 0;
+  const apport = parseFloat(document.getElementById('apport-france').value) || 0;
+  const epFr = parseFloat(document.getElementById('epargne-fr').value) || 0;
+  const actChine = parseFloat(document.getElementById('actifs-chine').value) || 0;
+  const prix = parseFloat(document.getElementById('prix-bien').value) || 0;
+  const duree = parseInt(document.getElementById('duree').value);
+  const taux = parseFloat(document.getElementById('taux').value);
+  const assurance = parseFloat(document.getElementById('assurance').value);
+  const fraisRate = propertyType === 'neuf' ? 0.025 : 0.075;
+
+  const maxDTI = 0.35;
+  const maxMonthly = totalIncome * maxDTI - charges + loyerBonus * 0.5;
+  const maxLoan = Math.max(0, calcMaxLoan(maxMonthly, taux, assurance, duree));
+  const totalBudget = maxLoan + apport;
+  const frais = totalBudget * fraisRate;
+  const budgetNet = Math.max(0, totalBudget - frais);
+  const dti = totalIncome > 0 ? ((charges + maxMonthly) / totalIncome * 100) : 0;
+
+  let statusClass = dti <= 33 ? 'ok' : dti <= 35 ? 'warn' : 'bad';
+  let statusLabel = dti <= 33 ? '✅ 符合标准' : dti <= 35 ? '⚠️ 处于上限' : '❌ 超出上限';
+
+  let warningHTML = '';
+  if (totalIncome === 0) {
+    warningHTML = '<div class="warning-box">⚠️ 请填写收入信息后再查看结果</div>';
+  }
+  if (apport < (prix || totalBudget) * 0.1) {
+    warningHTML += '<div class="warning-box">⚠️ 首付建议至少为房价的 <strong>10%</strong>（银行硬性要求）。首付越高，贷款越容易获批 · Apport minimum recommandé : 10% du prix</div>';
   }
 
-  function setType(t, el) {
-    loanType = t;
-    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-    document.getElementById('rate').value = cfg[t].rate;
-    update();
+  // Materials list
+  const materials = buildMaterials();
+
+  let html = warningHTML;
+  if (totalIncome > 0) {
+    html += `
+    <div class="result-hero">
+      <div class="result-hero-label">最高可贷款额度 <span>· Capacité d'emprunt maximale</span></div>
+      <div class="result-hero-amount">€${fmtM(maxLoan)}</div>
+      <div class="result-hero-sub">${duree}年期 · 每月还款约 €${fmt(maxMonthly)} · Taux ${taux}% + assurance ${assurance}%</div>
+    </div>
+
+    <div class="result-grid">
+      <div class="result-metric">
+        <div class="result-metric-label">可购房总预算<span>· Budget total d'acquisition</span></div>
+        <div class="result-metric-val">€${fmtM(totalBudget)}</div>
+      </div>
+      <div class="result-metric">
+        <div class="result-metric-label">扣除公证费后<span>· Après frais de notaire</span></div>
+        <div class="result-metric-val">€${fmtM(budgetNet)}</div>
+      </div>
+      <div class="result-metric">
+        <div class="result-metric-label">家庭月净收入<span>· Revenus nets mensuels</span></div>
+        <div class="result-metric-val">€${fmt(totalIncome)}</div>
+      </div>
+      <div class="result-metric">
+        <div class="result-metric-label">负债率 <span>· Taux d'endettement</span></div>
+        <div class="result-metric-val ${statusClass}">${dti.toFixed(1)}% ${statusLabel}</div>
+        <div class="dti-bar"><div class="dti-fill" style="width:${Math.min(dti,50)*2}%; background:${dti<=33?'#2d6a4f':dti<=35?'#d35400':'#c0392b'}"></div></div>
+      </div>
+    </div>`;
+
+    if (actChine > 0) {
+      html += `<div class="success-box">🇨🇳 中国资产 €${fmtM(actChine)} 可作为银行信用加分项，请准备公证翻译的资产证明文件 · Vos actifs en Chine renforcent votre dossier</div>`;
+    }
   }
 
-  function calcMax(pmt, annRate, yrs) {
-    if (pmt <= 0) return 0;
-    const r = annRate / 100 / 12;
-    const n = yrs * 12;
-    if (r === 0) return pmt * n;
-    return pmt * (1 - Math.pow(1+r,-n)) / r;
+  html += materials;
+  html += `<div class="disclaimer">本计算结果仅供参考，基于月收入35%负债率上限（HCSF规定）。实际贷款额度由银行综合评估，建议同时咨询多家银行或专业贷款中介。<br>· Simulation indicative basée sur le taux d'endettement maximum de 35% (norme HCSF). Consultez plusieurs banques ou un courtier.</div>`;
+
+  document.getElementById('results-content').innerHTML = html;
+}
+
+function buildMaterials() {
+  const items = [];
+  const b1metier = document.getElementById('b1-metier')?.value;
+  const b2metier = document.getElementById('b2-metier')?.value;
+
+  // Identity
+  items.push({ cat: '身份证件 · Pièces d\'identité', list: [
+    { zh: '护照或居留卡（正反面复印）', fr: 'Passeport ou titre de séjour (recto-verso)' },
+    { zh: '最近3个月银行对账单', fr: 'Relevés de compte des 3 derniers mois' },
+    { zh: '最近2年报税单', fr: 'Avis d\'imposition des 2 dernières années' },
+  ]});
+
+  // Income docs
+  const incomeItems = [];
+  const addIncome = (metier) => {
+    if (metier === 'cdi' || metier === 'fonctionnaire') {
+      incomeItems.push({ zh: '劳动合同（CDI）', fr: 'Contrat de travail (CDI)' });
+      incomeItems.push({ zh: '最近3个月工资单', fr: '3 derniers bulletins de salaire' });
+    } else if (metier === 'ae') {
+      incomeItems.push({ zh: '近3年报税单（收入申报）', fr: 'Avis d\'imposition 3 dernières années' });
+      incomeItems.push({ zh: 'KBIS或自雇注册证明', fr: 'Extrait KBIS ou attestation URSSAF' });
+      incomeItems.push({ zh: '近3年营业额流水', fr: 'Chiffre d\'affaires des 3 dernières années' });
+    } else if (metier === 'gerant') {
+      incomeItems.push({ zh: '近3年公司资产负债表和损益表', fr: 'Bilans comptables des 3 dernières années' });
+      incomeItems.push({ zh: '近3年个人报税单', fr: 'Avis d\'imposition personnels 3 ans' });
+      incomeItems.push({ zh: 'KBIS（3个月内）', fr: 'Extrait KBIS de moins de 3 mois' });
+    }
+  };
+  if (b1metier) addIncome(b1metier);
+  if (b2metier) addIncome(b2metier);
+  if (incomeItems.length) items.push({ cat: '收入证明 · Justificatifs de revenus', list: incomeItems });
+
+  // Property
+  items.push({ cat: '购房相关 · Documents liés au bien', list: [
+    { zh: '购房意向协议（签约后）', fr: 'Compromis de vente (si signé)' },
+    { zh: '目标房产地址及价格证明', fr: 'Adresse et prix du bien' },
+    ...(propertyType === 'neuf' ? [{ zh: '新房预售合同（VEFA）', fr: 'Contrat de réservation VEFA' }] : []),
+  ]});
+
+  // Savings
+  const apportFr = parseFloat(document.getElementById('apport-france').value) || 0;
+  const apportTotal = parseFloat(document.getElementById('apport-total').value) || 0;
+  const savingsItems = [{ zh: '首付来源证明（银行存款证明）', fr: 'Justificatif d\'origine des fonds (apport)' }];
+  if (apportFr < apportTotal) {
+    savingsItems.push({ zh: '⚠️ 海外资金转账记录（必须在申请前到账）', fr: 'Justificatif de virement depuis l\'étranger' });
+    savingsItems.push({ zh: '资金来源说明书（可能需公证）', fr: 'Attestation d\'origine des fonds (notariée si besoin)' });
+  }
+  const actChine = parseFloat(document.getElementById('actifs-chine').value) || 0;
+  if (actChine > 0) savingsItems.push({ zh: '中国资产证明（公证+认证翻译）', fr: 'Justificatifs d\'actifs en Chine (traduits et apostillés)' });
+  items.push({ cat: '资金证明 · Justificatifs financiers', list: savingsItems });
+
+  // Housing
+  const housing = document.getElementById('housing-status').value;
+  if (housing === 'locataire') {
+    items.push({ cat: '住址证明 · Justificatif de domicile', list: [
+      { zh: '最近3个月房租收据或房东证明', fr: 'Quittances de loyer des 3 derniers mois' },
+      { zh: '现租房合同', fr: 'Bail de location en cours' },
+    ]});
   }
 
-  function fmt(n) {
-    if (n >= 10000) return (n/10000).toFixed(1) + ' 万元';
-    return Math.round(n).toLocaleString() + ' 元';
-  }
-
-  function update() {
-    const income = +document.getElementById('income').value;
-    const rate   = +document.getElementById('rate').value;
-    const debt   = +document.getElementById('debt').value || 0;
-
-    document.getElementById('income-val').textContent = Math.round(income).toLocaleString() + ' 元';
-    document.getElementById('rate-val').textContent   = rate.toFixed(1) + '%';
-
-    const avail = Math.max(0, income * 0.5 - debt);
-    const dti   = Math.round((debt / income) * 100);
-    document.getElementById('avail').textContent = Math.round(avail).toLocaleString() + ' 元';
-    document.getElementById('dti').textContent   = dti + '%';
-
-    const c = cfg[loanType];
-    let plansHTML = '';
-    let bestAmt = 0;
-
-    c.years.forEach((y, i) => {
-      const amt = calcMax(avail, rate, y);
-      const isBest = i === c.best;
-      if (isBest) bestAmt = amt;
-      plansHTML += `
-        <div class="plan ${isBest?'best':''}">
-          ${isBest ? '<div class="plan-tag">推荐</div>' : '<div style="height:18px"></div>'}
-          <div class="plan-yr">${y}<span> 年</span></div>
-          <div class="plan-amt">${fmt(amt)}</div>
-          <div class="plan-mo">月还 ${Math.round(avail).toLocaleString()} 元</div>
-        </div>`;
+  let html = `<div class="card"><div class="card-title" style="margin-bottom:12px;">📋 个性化材料清单 · Liste de documents personnalisée</div>`;
+  items.forEach(section => {
+    html += `<div class="checklist-section"><div class="checklist-title"><div class="dot"></div>${section.cat}</div>`;
+    section.list.forEach((item, i) => {
+      html += `<div class="check-item"><div class="check-icon">${i+1}</div><div><div class="check-zh">${item.zh}</div><div class="check-fr">${item.fr}</div></div></div>`;
     });
+    html += `</div>`;
+  });
+  html += `</div>`;
+  return html;
+}
 
-    document.getElementById('plans').innerHTML = plansHTML;
-    document.getElementById('best-amount').textContent = fmt(bestAmt);
-    document.getElementById('best-sub').textContent = c.years[c.best] + ' 年期 · 月还 ' + Math.round(avail).toLocaleString() + ' 元';
+// Navigation
+function goTo(page) {
+  if (page > currentPage) return;
+  currentPage = page;
+  renderPage();
+}
+
+function nextPage() {
+  if (currentPage < totalPages - 1) {
+    if (currentPage === 1) buildIncomeSection();
+    currentPage++;
+    if (currentPage === totalPages - 1) computeResults();
+    renderPage();
   }
+}
+
+function prevPage() {
+  if (currentPage > 0) { currentPage--; renderPage(); }
+}
+
+function renderPage() {
+  document.querySelectorAll('.page').forEach((p, i) => {
+    p.classList.toggle('active', i === currentPage);
+  });
+  document.querySelectorAll('.step').forEach((s, i) => {
+    s.classList.remove('active', 'done');
+    if (i === currentPage) s.classList.add('active');
+    else if (i < currentPage) s.classList.add('done');
+  });
+  document.querySelectorAll('.step-line').forEach((l, i) => {
+    l.classList.toggle('done', i < currentPage);
+  });
+  document.getElementById('btn-back').style.display = currentPage > 0 ? 'block' : 'none';
+  const btn = document.getElementById('btn-next');
+  btn.className = currentPage === totalPages - 1 ? 'btn-calc' : 'btn-next';
+  btn.textContent = currentPage === totalPages - 1 ? '重新计算 ↺' : '下一步 →';
+  if (currentPage === totalPages - 1) btn.onclick = computeResults;
+  else btn.onclick = nextPage;
+  window.scrollTo(0, 0);
+}
 </script>
 </body>
 </html>
