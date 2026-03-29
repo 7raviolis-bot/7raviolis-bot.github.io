@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>社区贷款计算器</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f2eb;
+    --surface: #fffdf8;
+    --accent: #2d6a4f;
+    --accent-light: #d8f3dc;
+    --accent-dark: #1b4332;
+    --text: #1a1a1a;
+    --text-muted: #6b7280;
+    --border: #e5e0d5;
+    --shadow: 0 4px 24px rgba(0,0,0,0.08);
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* Header */
+  header {
+    background: var(--accent-dark);
+    color: white;
+    padding: 1.5rem 1.25rem 1.25rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -30px; left: -20px;
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    position: relative;
+  }
+  header p {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin-top: 4px;
+    position: relative;
+  }
+
+  /* Open button */
+  .open-btn {
+    display: block;
+    margin: 1.5rem auto;
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 0.85rem 2rem;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(45,106,79,0.35);
+    transition: all 0.2s;
+    width: calc(100% - 2.5rem);
+    max-width: 360px;
+  }
+  .open-btn:active { transform: scale(0.97); }
+
+  /* Info cards */
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 0 1.25rem 1.5rem;
+  }
+  .info-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    text-align: center;
+  }
+  .info-card .icon { font-size: 1.5rem; margin-bottom: 6px; }
+  .info-card .title { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 2px; }
+  .info-card .desc { font-size: 0.85rem; font-weight: 500; }
+
+  /* Modal overlay */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 100;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .overlay.open { display: flex; }
+
+  /* Modal sheet */
+  .sheet {
+    background: var(--surface);
+    border-radius: 24px 24px 0 0;
+    width: 100%;
+    max-width: 480px;
+    max-height: 92vh;
+    overflow-y: auto;
+    padding: 0 0 2rem;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  .sheet-handle {
+    width: 40px; height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 12px auto 0;
+  }
+
+  .sheet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .sheet-title { font-size: 1.05rem; font-weight: 700; }
+  .close-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    padding: 1rem 1.25rem 0;
+  }
+  .tab {
+    flex: 1;
+    padding: 8px 0;
+    font-size: 0.8rem;
+    font-family: 'Noto Sans SC', sans-serif;
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .tab.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+    font-weight: 500;
+  }
+
+  /* Form */
+  .form { padding: 1rem 1.25rem 0; }
+
+  .field { margin-bottom: 1rem; }
+  .field label {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .field-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .field input[type=range] {
+    flex: 1;
+    accent-color: var(--accent);
+  }
+  .field-val {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--accent-dark);
+    min-width: 80px;
+    text-align: right;
+  }
+  .field input[type=number] {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-family: 'Noto Sans SC', sans-serif;
+    background: white;
+    color: var(--text);
+  }
+
+  /* Results */
+  .results { padding: 0 1.25rem; }
+
+  .result-highlight {
+    background: var(--accent-dark);
+    color: white;
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .result-highlight .label { font-size: 0.78rem; opacity: 0.75; margin-bottom: 4px; }
+  .result-highlight .amount { font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; }
+  .result-highlight .sub { font-size: 0.78rem; opacity: 0.65; margin-top: 4px; }
+
+  .plans-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .plan {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 8px;
+    text-align: center;
+  }
+  .plan.best {
+    border: 2px solid var(--accent);
+    background: var(--accent-light);
+  }
+  .plan-tag {
+    font-size: 0.65rem;
+    background: var(--accent);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 50px;
+    display: inline-block;
+    margin-bottom: 4px;
+  }
+  .plan-yr { font-size: 1.1rem; font-weight: 700; color: var(--accent-dark); }
+  .plan-yr span { font-size: 0.7rem; font-weight: 400; color: var(--text-muted); }
+  .plan-amt { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+  .plan-mo { font-size: 0.7rem; color: var(--text-muted); margin-top: 3px; }
+
+  .metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .metric {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+  .metric-label { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 3px; }
+  .metric-val { font-size: 1rem; font-weight: 700; color: var(--text); }
+
+  .disclaimer {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    background: #f9f6f0;
+    border-radius: 10px;
+    padding: 10px 12px;
+    line-height: 1.6;
+  }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 2rem 1.25rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>社区贷款计算器</h1>
+  <p>快速估算银行贷款最高额度</p>
+</header>
+
+<div style="padding: 1.5rem 1.25rem 0.5rem; text-align:center;">
+  <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.7;">
+    输入你的收入和贷款条件，<br>立即查看可贷金额与还款方案。
+  </p>
+</div>
+
+<div style="text-align:center;">
+  <button class="open-btn" onclick="openModal()">开始计算 →</button>
+</div>
+
+<div class="cards">
+  <div class="info-card">
+    <div class="icon">🏠</div>
+    <div class="title">支持类型</div>
+    <div class="desc">房贷 / 车贷 / 消费贷</div>
+  </div>
+  <div class="info-card">
+    <div class="icon">📊</div>
+    <div class="title">方案对比</div>
+    <div class="desc">3种年限同时对比</div>
+  </div>
+  <div class="info-card">
+    <div class="icon">🔒</div>
+    <div class="title">隐私安全</div>
+    <div class="desc">无需注册，不存储数据</div>
+  </div>
+  <div class="info-card">
+    <div class="icon">📱</div>
+    <div class="title">随时可用</div>
+    <div class="desc">手机电脑均可使用</div>
+  </div>
+</div>
+
+<footer>仅供参考，实际额度以银行审批为准</footer>
+
+<!-- Modal -->
+<div class="overlay" id="overlay" onclick="handleOverlayClick(event)">
+  <div class="sheet" id="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <span class="sheet-title">贷款额度计算</span>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="setType('mortgage',this)">房贷</button>
+      <button class="tab" onclick="setType('consumer',this)">消费贷</button>
+      <button class="tab" onclick="setType('car',this)">车贷</button>
+    </div>
+
+    <div class="form">
+      <div class="field">
+        <label>月收入（元）</label>
+        <div class="field-row">
+          <input type="range" id="income" min="3000" max="100000" step="500" value="15000" oninput="update()">
+          <span class="field-val" id="income-val">15,000 元</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>年利率（%）</label>
+        <div class="field-row">
+          <input type="range" id="rate" min="1" max="15" step="0.1" value="4.5" oninput="update()">
+          <span class="field-val" id="rate-val">4.5%</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>现有月还款合计（元）— 已有房贷、车贷等</label>
+        <input type="number" id="debt" min="0" value="0" step="100" oninput="update()" placeholder="0">
+      </div>
+    </div>
+
+    <div class="results">
+      <div class="result-highlight">
+        <div class="label">推荐最高贷款额度</div>
+        <div class="amount" id="best-amount">—</div>
+        <div class="sub" id="best-sub">—</div>
+      </div>
+
+      <div class="plans-grid" id="plans"></div>
+
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">可用月还款</div>
+          <div class="metric-val" id="avail">—</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">收入负债比</div>
+          <div class="metric-val" id="dti">—</div>
+        </div>
+      </div>
+
+      <div class="disclaimer">
+        ⚠️ 本计算器仅供参考，以月收入50%作为最高还款能力估算。实际贷款额度由银行综合评估，建议咨询多家银行。
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let loanType = 'mortgage';
+  const cfg = {
+    mortgage: { years:[10,20,30], rate:4.5, labels:['短期','推荐','长期'], best:1 },
+    consumer: { years:[1,3,5],   rate:8.0, labels:['短期','推荐','长期'], best:1 },
+    car:      { years:[3,5,7],   rate:6.0, labels:['短期','推荐','长期'], best:1 }
+  };
+
+  function openModal() {
+    document.getElementById('overlay').classList.add('open');
+    update();
+  }
+  function closeModal() {
+    document.getElementById('overlay').classList.remove('open');
+  }
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('overlay')) closeModal();
+  }
+
+  function setType(t, el) {
+    loanType = t;
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('rate').value = cfg[t].rate;
+    update();
+  }
+
+  function calcMax(pmt, annRate, yrs) {
+    if (pmt <= 0) return 0;
+    const r = annRate / 100 / 12;
+    const n = yrs * 12;
+    if (r === 0) return pmt * n;
+    return pmt * (1 - Math.pow(1+r,-n)) / r;
+  }
+
+  function fmt(n) {
+    if (n >= 10000) return (n/10000).toFixed(1) + ' 万元';
+    return Math.round(n).toLocaleString() + ' 元';
+  }
+
+  function update() {
+    const income = +document.getElementById('income').value;
+    const rate   = +document.getElementById('rate').value;
+    const debt   = +document.getElementById('debt').value || 0;
+
+    document.getElementById('income-val').textContent = Math.round(income).toLocaleString() + ' 元';
+    document.getElementById('rate-val').textContent   = rate.toFixed(1) + '%';
+
+    const avail = Math.max(0, income * 0.5 - debt);
+    const dti   = Math.round((debt / income) * 100);
+    document.getElementById('avail').textContent = Math.round(avail).toLocaleString() + ' 元';
+    document.getElementById('dti').textContent   = dti + '%';
+
+    const c = cfg[loanType];
+    let plansHTML = '';
+    let bestAmt = 0;
+
+    c.years.forEach((y, i) => {
+      const amt = calcMax(avail, rate, y);
+      const isBest = i === c.best;
+      if (isBest) bestAmt = amt;
+      plansHTML += `
+        <div class="plan ${isBest?'best':''}">
+          ${isBest ? '<div class="plan-tag">推荐</div>' : '<div style="height:18px"></div>'}
+          <div class="plan-yr">${y}<span> 年</span></div>
+          <div class="plan-amt">${fmt(amt)}</div>
+          <div class="plan-mo">月还 ${Math.round(avail).toLocaleString()} 元</div>
+        </div>`;
+    });
+
+    document.getElementById('plans').innerHTML = plansHTML;
+    document.getElementById('best-amount').textContent = fmt(bestAmt);
+    document.getElementById('best-sub').textContent = c.years[c.best] + ' 年期 · 月还 ' + Math.round(avail).toLocaleString() + ' 元';
+  }
+</script>
+</body>
+</html>
